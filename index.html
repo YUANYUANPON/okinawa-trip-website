@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的沖繩自駕遊</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <!-- 標頭 (這個會一直顯示在最上方) -->
+        <header>
+            <h1>OKINAWA SELF-DRIVE JOURNAL</h1>
+            <p>5天4夜自駕旅程｜2026.08.30 - 09.03</p>
+        </header>
+
+        <!-- 分頁 1：今天 (預設先隱藏) -->
+        <section id="today" class="tab-content">
+            <h2>Day 1 抵達那霸</h2>
+            <article class="card">
+                <div class="time">17:50</div>
+                <div class="info">
+                    <h3>抵達那霸機場</h3>
+                    <p>入境、拿行李後，搭單軌電車前往小祿站。</p>
+                </div>
+            </article>
+        </section>
+
+        <!-- 分頁 2：行程 (預設先隱藏) -->
+        <section id="itinerary" class="tab-content">
+            <h2>行程總覽</h2>
+
+            <div class="day-selector">
+                <button class="day-btn active" data-day="day1">Day 1</button>
+                <button class="day-btn" data-day="day2">Day 2</button>
+                <button class="day-btn" data-day="day3">Day 3</button>
+                <button class="day-btn" data-day="day4">Day 4</button>
+                <button class="day-btn" data-day="day5">Day 5</button>
+            </div>
+
+            <div id="day1" class="day-content active">
+                <article class="card">
+                    <div class="time">17:50</div>
+                    <div class="info">
+                        <h3>抵達那霸機場</h3>
+                        <p>入境、拿行李後，搭單軌電車前往小祿站。</p>
+                    </div>
+                </article>
+                </div>
+
+            <div id="day2" class="day-content">
+                <article class="card">
+                    <div class="time">09:00</div>
+                    <div class="info">
+                        <h3>古宇利島 × 美麗海水族館</h3>
+                        <p>取車出發前往北部古宇利大橋與水族館。</p>
+                    </div>
+                </article>
+            </div>
+
+            <div id="day3" class="day-content">
+                <p>Day 3 行程準備中...</p>
+            </div>
+
+            <div id="day4" class="day-content">
+                <p>Day 4 行程準備中...</p>
+            </div>
+
+            <div id="day5" class="day-content">
+                <p>Day 5 返程...</p>
+            </div>
+        </section>
+
+        <!-- 分頁 3：花費 (預設顯示，加上 active) -->
+        <section id="expense" class="tab-content active">
+            <div class="expense-wrapper">
+                <div class="expense-card">
+                    <p class="sub-title">旅途中的每一筆</p>
+                    <h2>記下花費</h2>
+
+                    <div class="form-row">
+                        <input type="number" id="exp-amount" placeholder="日幣金額 ¥" />
+                        <select id="exp-category">
+                            <option value="餐飲">餐飲</option>
+                            <option value="交通">交通</option>
+                            <option value="購物">購物</option>
+                            <option value="住宿">住宿</option>
+                            <option value="門票">門票</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <input type="text" id="exp-note" placeholder="備註，例如：便利商店早餐" />
+                    </div>
+
+                    <button id="add-exp-btn" class="btn-submit">加入這筆花費</button>
+
+                    <div class="total-box">
+                        <span class="total-label">目前總額</span>
+                        <div class="total-amount">
+                            <strong id="total-jpy">¥0</strong>
+                            <span id="total-twd">約 NT$0</span>
+                        </div>
+                    </div>
+
+                    <ul id="expense-list" class="expense-list">
+                        </ul>
+                </div>
+
+                <div class="expense-info-card">
+                    <p class="sub-title">旅程預算觀察</p>
+                    <h3>隨手記就好</h3>
+                    <p>花費資料只會保存在這台裝置的瀏覽器。若要清除，可刪除下方紀錄。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 分頁 4：換算 (預設先隱藏) -->
+        <section id="exchange" class="tab-content">
+            <h2>日幣 ⇄ 台幣 換算</h2>
+            <input type="number" id="jpy-input" placeholder="輸入日幣金額">
+            <p>換算結果： <strong id="twd-result">NT$ 0</strong></p>
+        </section>
+    </main>
+
+    <!-- ★ 底部導航列放在這裡 (main 之外，script 之前) ★ -->
+    <nav class="bottom-nav">
+        <button class="nav-btn" data-target="today">今天</button>
+        <button class="nav-btn" data-target="itinerary">行程</button>
+        <!-- 這裡的 active 代表按鈕預設為選中狀態 -->
+        <button class="nav-btn active" data-target="expense">花費</button>
+        <button class="nav-btn" data-target="exchange">換算</button>
+    </nav>
+
+    <!-- 確保 script 在最底部載入 -->
+    <script src="script.js"></script>
+</body>
+</html>
