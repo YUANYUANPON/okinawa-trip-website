@@ -5,25 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的沖繩自駕遊</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <main>
         <!-- 標頭 (這個會一直顯示在最上方) -->
         <header>
-            <h1>OKINAWA SELF-DRIVE JOURNAL</h1>
-            <p>5天4夜自駕旅程｜2026.08.30 - 09.03</p>
+            <h1>🛫OKINAWA 帶爸媽沖繩自由行</h1>
+            <p>8天7夜自駕旅程｜2026.10.21 - 10.28</p>
         </header>
 
         <!-- 分頁 1：今天 (預設先隱藏) -->
         <section id="today" class="tab-content">
-            <h2>Day 1 抵達那霸</h2>
-            <article class="card">
-                <div class="time">17:50</div>
-                <div class="info">
-                    <h3>抵達那霸機場</h3>
-                    <p>入境、拿行李後，搭單軌電車前往小祿站。</p>
-                </div>
-            </article>
+            <h2 id="today-header">今日行程</h2>
+            
+            <!-- 這個容器會由程式自動填入當天的行程內容 -->
+            <div id="today-schedule-container">
+                <p>正在載入今日行程...</p>
+            </div>
+
+            <!-- 地圖按鈕與容器保留在最下方 -->
+            <button id="toggle-map-btn" class="btn-floating">🗺️ 切換地圖路線</button>
+            <div id="map-container" style="height: 500px; display: none; border-radius: 12px; margin-top: 16px;"></div>
         </section>
 
         <!-- 分頁 2：行程 (預設先隱藏) -->
@@ -31,20 +35,40 @@
             <h2>行程總覽</h2>
 
             <div class="day-selector">
-                <button class="day-btn active" data-day="day1">Day 1</button>
+                <button class="day-btn" data-day="day1">Day 1</button>
                 <button class="day-btn" data-day="day2">Day 2</button>
                 <button class="day-btn" data-day="day3">Day 3</button>
                 <button class="day-btn" data-day="day4">Day 4</button>
                 <button class="day-btn" data-day="day5">Day 5</button>
+                <button class="day-btn" data-day="day5">Day 6</button>
+                <button class="day-btn" data-day="day5">Day 7</button>
+                <button class="day-btn" data-day="day5">Day 8</button>
             </div>
 
-            <div id="day1" class="day-content active">
+            <div id="day1" class="day-content">
                 <article class="card">
-                    <div class="time">17:50</div>
+                    <div class="time">19:10</div>
                     <div class="info">
                         <h3>抵達那霸機場</h3>
-                        <p>入境、拿行李後，搭單軌電車前往小祿站。</p>
-                    </div>
+                        <p>入境、拿行李後，搭單軌電車前往美榮橋站-東橫INN入住。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=東橫INN 沖繩那霸國際通美榮橋站">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">10:50</div>
+                    <div class="info">
+                        <h3>國際通</h3>
+                        <p>走路前往國際通覓食。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=國際通" target="_blank">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=Don Quijote Kokusai-dori">導航到這裡 ↗</a>
+                    </div>                
                 </article>
                 </div>
 
@@ -56,14 +80,134 @@
                         <p>取車出發前往北部古宇利大橋與水族館。</p>
                     </div>
                 </article>
+                <article class="card">
+                    <div class="time">09:00</div>
+                    <div class="info">
+                        <h3>古宇利島 × 美麗海水族館</h3>
+                        <p>取車出發前往北部古宇利大橋與水族館。</p>
+                    </div>
+                </article>
+                <article class="card">
+                    <div class="time">09:00</div>
+                    <div class="info">
+                        <h3>古宇利島 × 美麗海水族館</h3>
+                        <p>取車出發前往北部古宇利大橋與水族館。</p>
+                    </div>
+                </article>
+                <article class="card">
+                    <div class="time">09:00</div>
+                    <div class="info">
+                        <h3>古宇利島 × 美麗海水族館</h3>
+                        <p>取車出發前往北部古宇利大橋與水族館。</p>
+                    </div>
+                </article>
+                <article class="card">
+                    <div class="time">09:00</div>
+                    <div class="info">
+                        <h3>古宇利島 × 美麗海水族館</h3>
+                        <p>取車出發前往北部古宇利大橋與水族館。</p>
+                    </div>
+                </article>
             </div>
 
             <div id="day3" class="day-content">
-                <p>Day 3 行程準備中...</p>
+                <article class="card">
+                    <div class="time">09:00</div>
+                    <div class="info">
+                        <h3>古宇利島 × 美麗海水族館</h3>
+                        <p>取車出發前往北部古宇利大橋與水族館。</p>
+                    </div>
+                </article>
+                <article class="card">
+                    <div class="time">09:00</div>
+                    <div class="info">
+                        <h3>古宇利島 × 美麗海水族館</h3>
+                        <p>取車出發前往北部古宇利大橋與水族館。</p>
+                    </div>
+                </article>
             </div>
 
             <div id="day4" class="day-content">
-                <p>Day 4 行程準備中...</p>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=古宇利島">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=海洋塔">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=海中展望塔">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=蝦蝦飯">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=備賴福木林道">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=今歸仁城跡">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=CAPTAIN漢堡">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=宜野座道路休息站">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=AEON MALL Rycom">導航到這裡 ↗</a>
+                    </div>                
+                </article>
+                <article class="card">
+                    <div class="time">08:50</div>
+                    <div class="info">
+                        <h3>DONKI DONKI</h3>
+                        <p>24HR不打烊。</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=外食家 くじら北中城店">導航到這裡 ↗</a>
+                    </div>                
+                </article>
             </div>
 
             <div id="day5" class="day-content">
@@ -107,6 +251,7 @@
                     <ul id="expense-list" class="expense-list">
                         </ul>
                 </div>
+                <button id="export-exp-btn" class="btn-submit" style="background-color: #4a5568; margin-top: 16px;">📥 匯出花費明細 (txt)</button>
 
                 <div class="expense-info-card">
                     <p class="sub-title">旅程預算觀察</p>
@@ -117,10 +262,13 @@
         </section>
 
         <!-- 分頁 4：換算 (預設先隱藏) -->
-        <section id="exchange" class="tab-content">
-            <h2>日幣 ⇄ 台幣 換算</h2>
-            <input type="number" id="jpy-input" placeholder="輸入日幣金額">
-            <p>換算結果： <strong id="twd-result">NT$ 0</strong></p>
+        <section id="notes" class="tab-content">
+            <div class="expense-card">
+                <p class="sub-title">隨手筆記</p>
+                <h2>旅途日誌</h2>
+                <textarea id="journal-text" rows="12" placeholder="寫下今天的旅途心情、天氣或突發事件..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 12px; font-family: inherit; resize: vertical;"></textarea>
+                <button id="export-notes-btn" class="btn-submit">📥 匯出日誌 (txt)</button>
+            </div>
         </section>
     </main>
 
@@ -130,7 +278,7 @@
         <button class="nav-btn" data-target="itinerary">行程</button>
         <!-- 這裡的 active 代表按鈕預設為選中狀態 -->
         <button class="nav-btn active" data-target="expense">花費</button>
-        <button class="nav-btn" data-target="exchange">換算</button>
+        <button class="nav-btn" data-target="notes">筆記</button>
     </nav>
 
     <!-- 確保 script 在最底部載入 -->
