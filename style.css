@@ -1,250 +1,229 @@
-body {
-    font-family: "PingFang TC", "Helvetica Neue", sans-serif;
-    background-color: #f4f6f8;
-    color: #333;
-    margin: 0;
-    padding: 20px;
-}
-main {
-    max-width: 600px; /* 適合手機寬度 */
-    margin: 0 auto;
-}
-.card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    display: flex;
-    gap: 15px;
-}
-.card .time {
-    font-weight: bold;
-    color: #0066cc;
-    min-width: 60px;
-}
-.card a {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 6px 12px;
-    background: #f0f0f0;
-    color: #333;
-    text-decoration: none;
-    border-radius: 20px;
-    font-size: 0.9em;
-}
-/* --- 前面是你原本寫的樣式 --- */
-/* body { ... } */
-/* main { ... } */
-/* .card { ... } */
+/* ==========================================
+   1. 底部主導航列切換 (今天、行程、花費、筆記)
+   ========================================== */
+const navBtns = document.querySelectorAll('.nav-btn');
+const tabContents = document.querySelectorAll('.tab-content');
 
-/* --- ☟ 請將以下程式碼加在檔案最下方 ☟ --- */
+navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // 移除所有啟用狀態
+        navBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
 
-/* 確保網頁底部留白，不會被導航列擋住內容 */
-body {
-    padding-bottom: 100px; 
+        // 啟用點擊的按鈕與對應區塊
+        btn.classList.add('active');
+        const targetId = btn.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+    });
+});
+
+/* ==========================================
+   2. 行程每日頁籤切換邏輯 (Day 1~5)
+   ========================================== */
+const dayBtns = document.querySelectorAll('.day-btn');
+const dayContents = document.querySelectorAll('.day-content');
+
+dayBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        dayBtns.forEach(b => b.classList.remove('active'));
+        dayContents.forEach(content => content.classList.remove('active'));
+        
+        btn.classList.add('active');
+        const targetDay = btn.getAttribute('data-day');
+        const targetContent = document.getElementById(targetDay);
+        if (targetContent) {
+            targetContent.classList.add('active');
+        }
+    });
+});
+
+/* ==========================================
+   3. 記帳功能邏輯 (Expense Tracker)
+   ========================================== */
+const EXCHANGE_RATE = 0.201; 
+let expenses = JSON.parse(localStorage.getItem('okinawa_expenses')) || [];
+
+const expAmountInput = document.getElementById('exp-amount');
+const expCategorySelect = document.getElementById('exp-category');
+const expNoteInput = document.getElementById('exp-note');
+const addExpBtn = document.getElementById('add-exp-btn');
+const expenseList = document.getElementById('expense-list');
+const totalJpyEl = document.getElementById('total-jpy');
+const totalTwdEl = document.getElementById('total-twd');
+
+function renderExpenses() {
+    if(!expenseList) return; // 確保元素存在
+    expenseList.innerHTML = '';
+    let totalJpy = 0;
+
+    expenses.forEach((item, index) => {
+        totalJpy += item.amount;
+        const twdAmount = Math.round(item.amount * EXCHANGE_RATE);
+        const li = document.createElement('li');
+        li.className = 'expense-item';
+        li.innerHTML = `
+            <div class="item-info">
+                <strong>${item.category}</strong> ${item.note ? '· ' + item.note : ''}
+            </div>
+            <div class="item-price">
+                ¥${item.amount.toLocaleString()} 
+                <small style="color: #718096;">(約 NT$${twdAmount})</small>
+                <button class="btn-delete" onclick="deleteExpense(${index})">刪除</button>
+            </div>
+        `;
+        expenseList.appendChild(li);
+    });
+
+    const totalTwd = Math.round(totalJpy * EXCHANGE_RATE);
+    totalJpyEl.textContent = `¥${totalJpy.toLocaleString()}`;
+    totalTwdEl.textContent = `約 NT$${totalTwd.toLocaleString()}`;
+    localStorage.setItem('okinawa_expenses', JSON.stringify(expenses));
 }
 
-/* 預設隱藏所有區塊 */
-.tab-content {
-    display: none;
+if (addExpBtn) {
+    addExpBtn.addEventListener('click', () => {
+        const amount = parseFloat(expAmountInput.value);
+        const category = expCategorySelect.value;
+        const note = expNoteInput.value.trim();
+
+        if (isNaN(amount) || amount <= 0) {
+            alert('請輸入有效的日幣金額！');
+            return;
+        }
+        expenses.push({ category, note, amount });
+        expAmountInput.value = '';
+        expNoteInput.value = '';
+        renderExpenses();
+    });
 }
 
-/* 加上 active 類別時才顯示 */
-.tab-content.active {
-    display: block;
+function deleteExpense(index) {
+    expenses.splice(index, 1);
+    renderExpenses();
+}
+renderExpenses(); // 初始載入
+
+/* ==========================================
+   4. 地圖切換與繪製邏輯
+   ========================================== */
+const toggleMapBtn = document.getElementById('toggle-map-btn');
+let mapInitialized = false;
+
+if(toggleMapBtn) {
+    toggleMapBtn.addEventListener('click', function() {
+        const mapDiv = document.getElementById('map-container');
+        if (mapDiv.style.display === 'none') {
+            mapDiv.style.display = 'block';
+            this.textContent = '返回行程列表';
+            
+            if (!mapInitialized) {
+                // 初始化 Leaflet 地圖 (以沖繩那霸機場為中心點示範)
+                const map = L.map('map-container').setView([26.1958, 127.6525], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                L.marker([26.1958, 127.6525]).bindPopup("<b>那霸機場</b>").addTo(map);
+                L.marker([26.1965, 127.6620]).bindPopup("<b>小祿站</b>").addTo(map);
+                mapInitialized = true;
+            }
+        } else {
+            mapDiv.style.display = 'none';
+            this.textContent = '🗺️ 切換地圖路線';
+        }
+    });
 }
 
-/* 底部導航列懸浮設定 */
-.bottom-nav {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    background-color: #1b4353; 
-    padding: 8px 16px;
-    border-radius: 40px;
-    gap: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+/* ==========================================
+   5. 匯出 TXT 文字檔功能
+   ========================================== */
+function downloadTxtFile(content, filename) {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
-/* 導航按鈕預設樣式 */
-.nav-btn {
-    background: transparent;
-    color: #ffffff;
-    border: none;
-    padding: 8px 24px;
-    border-radius: 30px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.2s ease;
+const exportNotesBtn = document.getElementById('export-notes-btn');
+if(exportNotesBtn) {
+    exportNotesBtn.addEventListener('click', () => {
+        const text = document.getElementById('journal-text').value.trim();
+        if (!text) {
+            alert("日誌目前是空的喔！");
+            return;
+        }
+        const dateStr = new Date().toLocaleDateString('zh-TW').replace(/\//g, '');
+        downloadTxtFile(text, `旅途日誌_${dateStr}.txt`);
+    });
 }
 
-/* 被選中的按鈕樣式 (白底深字) */
-.nav-btn.active {
-    background-color: #ffffff;
-    color: #1b4353;
-    font-weight: bold;
+const exportExpBtn = document.getElementById('export-exp-btn');
+if(exportExpBtn) {
+    exportExpBtn.addEventListener('click', () => {
+        if (expenses.length === 0) {
+            alert("目前沒有任何花費紀錄！");
+            return;
+        }
+        let exportText = "【沖繩自駕遊 - 花費明細】\n==========================\n\n";
+        let total = 0;
+        expenses.forEach((item, index) => {
+            total += item.amount;
+            const noteText = item.note ? ` (${item.note})` : '';
+            exportText += `${index + 1}. [${item.category}] ¥${item.amount}${noteText}\n`;
+        });
+        exportText += "\n==========================\n";
+        exportText += `總計花費：¥${total.toLocaleString()}`;
+        
+        const dateStr = new Date().toLocaleDateString('zh-TW').replace(/\//g, '');
+        downloadTxtFile(exportText, `花費明細_${dateStr}.txt`);
+    });
 }
 /* ==========================================
-   花費頁面樣式 (Expense Section)
+   自動判定「今天」是 Day 幾，並同步更新「今天」分頁
    ========================================== */
-.expense-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
+function syncTodayItinerary() {
+    // 設定旅程第一天的日期 (2026年8月30日)
+    const tripStartDate = new Date('2026-08-30T00:00:00');
+    // 取得當前系統時間 (今天 9/2 會自動抓取)
+    const today = new Date(); 
+    
+    // 計算時間差 (將毫秒轉換為天數)
+    const diffTime = today - tripStartDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    const currentDayIndex = diffDays + 1; // 差 0 天 = Day 1, 差 3 天 = Day 4
+    
+    const todayHeader = document.getElementById('today-header');
+    const todayContainer = document.getElementById('today-schedule-container');
 
-/* 網頁寬度較寬時可橫排雙欄 (電腦版) */
-@media (min-width: 768px) {
-    .expense-wrapper {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
+    // 如果目前日期在 Day 1 ~ Day 5 範圍內
+    if (currentDayIndex >= 1 && currentDayIndex <= 5) {
+        // 1. 自動觸發行程頁籤的點擊，切換到 Day X
+        const targetBtn = document.querySelector(`.day-btn[data-day="day${currentDayIndex}"]`);
+        if (targetBtn) {
+            targetBtn.click(); 
+        }
+
+        // 2. 更新「今天」分頁的標題
+        if (todayHeader) {
+            todayHeader.textContent = `Day ${currentDayIndex} 今日行程`;
+        }
+
+        // 3. 把行程區塊 (dayX) 的內容，完整複製到「今天」的容器裡
+        const currentDayContent = document.getElementById(`day${currentDayIndex}`);
+        if (currentDayContent && todayContainer) {
+            todayContainer.innerHTML = currentDayContent.innerHTML;
+        }
+    } else {
+        // 如果今天不在旅程區間內 (例如出發前或回國後)
+        if (todayHeader) {
+            todayHeader.textContent = "今天沒有行程安排";
+        }
+        if (todayContainer) {
+            todayContainer.innerHTML = "<p>好好休息！目前不在表定的旅程日期內喔。</p>";
+        }
     }
 }
 
-.expense-card, .expense-info-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-}
-
-.sub-title {
-    color: #888;
-    font-size: 0.85rem;
-    margin-bottom: 4px;
-}
-
-.form-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.form-row input, .form-row select {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    background-color: #fafafa;
-    outline: none;
-}
-
-/* 橘色按鈕 */
-.btn-submit {
-    width: 100%;
-    padding: 14px;
-    background-color: #f27a4d;
-    color: #ffffff;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: background-color 0.2s;
-}
-
-.btn-submit:hover {
-    background-color: #e0693c;
-}
-
-/* 總額加總列 */
-.total-box {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 24px 0 16px 0;
-    padding-top: 16px;
-    border-top: 1px solid #f0f0f0;
-}
-
-.total-amount strong {
-    font-size: 1.5rem;
-    color: #1b3139;
-    margin-right: 8px;
-}
-
-.total-amount span {
-    color: #718096;
-    font-size: 0.9rem;
-}
-
-/* 花費紀錄列表 */
-.expense-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.expense-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f8f9fa;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-}
-
-.expense-item .item-info {
-    color: #2d3748;
-}
-
-.expense-item .item-price {
-    color: #1a202c;
-    font-weight: bold;
-}
-
-.expense-item .btn-delete {
-    background: none;
-    border: none;
-    color: #e53e3e;
-    cursor: pointer;
-    margin-left: 10px;
-    font-size: 0.85rem;
-}
-
-/* ==========================================
-   每日行程天數頁籤 (Day Selector)
-   ========================================== */
-.day-selector {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    overflow-x: auto; /* 手機版可橫向滑動 */
-    padding-bottom: 8px;
-}
-
-.day-btn {
-    padding: 8px 18px;
-    background-color: #e2e8f0;
-    color: #4a5568;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: 500;
-    white-space: nowrap;
-    transition: all 0.2s;
-}
-
-.day-btn.active {
-    background-color: #1b4353;
-    color: #ffffff;
-    font-weight: bold;
-}
-
-/* 行程天數區塊隱藏/顯示 */
-.day-content {
-    display: none;
-}
-
-.day-content.active {
-    display: block;
-}
+// 網頁載入時執行判定
+syncTodayItinerary();
