@@ -900,8 +900,8 @@ renderItineraryCards();
    ========================================== */
 function syncTodayItinerary() {
     // 設定旅程第一天的日期 
-    const tripStartDate = new Date('2026-10-16T00:00:00');
-    // 取得當前系統時間 (今天 9/2 會自動抓取)
+    const tripStartDate = new Date('2026-10-21T00:00:00');
+    // 取得當前系統時間 (今天 10/21 會自動抓取)
     const today = new Date(); 
     
     // 計算時間差 (將毫秒轉換為天數)
